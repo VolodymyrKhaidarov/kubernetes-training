@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: song-deployment
+  namespace: kt
+  labels:
+    app: song-service-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: song-service-app
+  template:
+    metadata:
+      namespace: kt
+      labels:
+        app: song-service-app
+    spec:
+      containers:
+        - name: song-service
+          image: docker.io/library/resource-service:1.0.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8082
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: jdbc:postgresql://song-db:5432/song-db
+            - name: SPRING_DATASOURCE_USERNAME
+              value: admin
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: password
+            - name: POSTGRES_USER
+              value: admin
+            - name: POSTGRES_PASSWORD
+              value: password
+            - name: POSTGRES_DB
+              value: resource-db

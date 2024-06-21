@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: resource-service
+  namespace: kt
+spec:
+  type: NodePort
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8081
+      nodePort: 30001
+  selector:
+    app: resource-service-app

@@ -1,0 +1,18 @@
+Kubernetes/Minikube on Ubuntu 24.04
+
+kubectl version
+kubectl cluster-info
+kubectl get svc -A
+
+minikube image build -t resource-service:0.0.1 -f ./Dockerfile .
+minikube image build -t song-service:0.0.1 -f ./Dockerfile .
+
+minikube image build -t resource-db:0.0.1 -f ./Dockerfile .
+minikube image build -t song-db:0.0.1 -f ./Dockerfile .
+
+minikube image ls
+
+minikube service resource-app --url
+minikube service song-app --url
+
+

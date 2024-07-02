@@ -32,20 +32,25 @@ spec:
     spec:
       containers:
         - name: resource-db
-          image: resource-db:0.0.1
+          image: postgres:16.1
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 5432
-          env:
-            - name: POSTGRES_USER
-              value: admin
-            - name: POSTGRES_PASSWORD
-              value: password
-            - name: POSTGRES_DB
-              value: resource-db
+          envFrom:
+            - secretRef:
+                name: app-secret
+            - configMapRef:
+                name: resource-db-config
           volumeMounts:
             - name: resource-db-pvc
               mountPath: /var/lib/postgresql/data
+            - name: resource-db-init-vol
+              mountPath: /docker-entrypoint-initdb.d/init.sql
+              subPath: RESOURCE_DB_INIT
+      volumes:
+        - name: resource-db-init-vol
+          configMap:
+            name: resource-db-config
   volumeClaimTemplates:
     - metadata:
         name: resource-db-pvc

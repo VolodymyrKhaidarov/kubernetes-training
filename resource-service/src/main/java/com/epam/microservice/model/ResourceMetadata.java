@@ -11,6 +11,7 @@ public class ResourceMetadata {
   private String name;
   private String artist;
   private String album;
+  private String genre;
   private String length;
   private String year;
 }

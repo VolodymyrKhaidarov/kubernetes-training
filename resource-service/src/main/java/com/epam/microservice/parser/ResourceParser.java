@@ -18,6 +18,7 @@ public class ResourceParser {
   private static final String NAME = "dc:title";
   private static final String ARTIST = "xmpDM:artist";
   private static final String ALBUM = "xmpDM:album";
+  private static final String GENRE = "xmpDM:genre";
   private static final String LENGTH = "xmpDM:duration";
   private static final String YEAR = "xmpDM:releaseDate";
 
@@ -35,6 +36,7 @@ public class ResourceParser {
         .name(metadata.get(NAME))
         .artist(metadata.get(ARTIST))
         .album(metadata.get(ALBUM))
+        .genre(metadata.get(GENRE))
         .length(metadata.get(LENGTH))
         .year(metadata.get(YEAR))
         .build();

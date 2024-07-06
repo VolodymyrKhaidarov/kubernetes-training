@@ -1,18 +1,35 @@
 Kubernetes/Minikube on Ubuntu 24.04
 
+#k8s info
 kubectl version
 kubectl cluster-info
 kubectl get svc -A
 
+
+#k8s images
+minikube image ls
+
+#base version
 minikube image build -t resource-service:0.0.1 -f ./Dockerfile .
 minikube image build -t song-service:0.0.1 -f ./Dockerfile .
 
-minikube image ls
+#new version for RollingUpdate
+minikube image build -t resource-service:0.0.2 -f ./Dockerfile .
+minikube image build -t song-service:0.0.2 -f ./Dockerfile .
 
+
+#k8s run
 kubectl apply -f .
-kubectl get all -n=kt
+kubectl get all -n kt
 kubectl delete namespace kt
 
 minikube service resource-app --url
 minikube service song-app --url
 
+
+#k8s rollback
+kubectl rollout history deployment.apps/resource-app -n kt
+kubectl rollout history deployment.apps/song-app -n kt
+
+kubectl rollout undo deployment.apps/resource-app --to-revision=1 -n kt
+kubectl rollout undo deployment.apps/song-app --to-revision=1 -n kt

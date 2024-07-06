@@ -30,6 +30,9 @@ public class SongMetadata {
   private String album;
 
   @Column
+  private String genre;
+
+  @Column
   private String length;
 
   @Column

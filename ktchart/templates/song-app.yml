@@ -1,0 +1,68 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: song-app
+  namespace: {{ .Values.namespace }}
+spec:
+  type: NodePort
+  ports:
+    - protocol: TCP
+      port: 8082
+      targetPort: 8080
+      nodePort: {{ .Values.nodePortSong }}
+  selector:
+    app: song-app
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: song-app
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: song-app
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: song-app
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+  template:
+    metadata:
+      namespace: {{ .Values.namespace }}
+      labels:
+        app: song-app
+    spec:
+      containers:
+        - name: song-app
+          image: song-service:0.0.2
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - secretRef:
+                name: app-secret
+            - configMapRef:
+                name: song-app-config
+          livenessProbe:
+            httpGet:
+              port: 8080
+              path: /actuator/health/liveness
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            timeoutSeconds: 3
+            successThreshold: 1
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              port: 8080
+              path: /actuator/health/readiness
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            timeoutSeconds: 3
+            successThreshold: 1
+            failureThreshold: 3

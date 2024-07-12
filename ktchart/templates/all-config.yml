@@ -1,0 +1,60 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: resource-app-config
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "ktchart.labels" . | nindent 4 }}
+data:
+  SPRING_APPLICATION_NAME: "resource-service"
+  SERVER_PORT: "8080"
+  SONG_SERVICE_URL: "http://song-app:8082/songs/"
+  SPRING_DATASOURCE_URL: "jdbc:postgresql://resource-db:5433/resource-db"
+  SPRING_DATASOURCE_DRIVER-CLASS-NAME: "org.postgresql.Driver"
+  SPRING_SERVLET_MULTIPART_MAX-FILE-SIZE: "100MB"
+  SPRING_SERVLET_MULTIPART_MAX-REQUEST-SIZE: "100MB"
+
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: song-app-config
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "ktchart.labels" . | nindent 4 }}
+data:
+    SPRING_APPLICATION_NAME: "song-service"
+    SERVER_PORT: "8080"
+    SPRING_DATASOURCE_URL: "jdbc:postgresql://song-db:5434/song-db"
+    SPRING_DATASOURCE_DRIVER-CLASS-NAME: "org.postgresql.Driver"
+
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: resource-db-config
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "ktchart.labels" . | nindent 4 }}
+data:
+  POSTGRES_DB: "resource-db"
+  RESOURCE_DB_INIT: |
+    drop table if exists resource cascade;
+    create table resource (id serial not null, payload bytea, primary key (id));
+
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: song-db-config
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "ktchart.labels" . | nindent 4 }}
+data:
+  POSTGRES_DB: "song-db"
+  SONG_DB_INIT: |
+    drop table if exists song cascade;
+    create table song (id serial not null, artist varchar(255), album varchar(255), genre varchar(255), length varchar(255), name varchar(255), year varchar(255), resource_id varchar(255), primary key (id));

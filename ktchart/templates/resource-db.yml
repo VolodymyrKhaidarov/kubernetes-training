@@ -1,0 +1,83 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: resource-db
+  namespace: {{ .Values.namespace }}
+spec:
+  type: ClusterIP
+  ports:
+    - protocol: TCP
+      port: 5433
+      targetPort: 5432
+  selector:
+    app: resource-db
+
+---
+
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: resource-db
+  namespace: {{ .Values.namespace }}
+spec:
+  serviceName: "resource-db"
+  selector:
+    matchLabels:
+      app: resource-db
+  template:
+    metadata:
+      namespace: {{ .Values.namespace }}
+      labels:
+        app: resource-db
+    spec:
+      containers:
+        - name: resource-db
+          image: postgres:16.1
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 5432
+          envFrom:
+            - secretRef:
+                name: app-secret
+            - configMapRef:
+                name: resource-db-config
+          livenessProbe:
+            exec:
+              command:
+                - /bin/bash
+                - -c
+                - pg_isready -U $POSTGRES_USER -d $POSTGRES_DB
+            initialDelaySeconds: 1
+            periodSeconds: 10
+            timeoutSeconds: 3
+            successThreshold: 1
+            failureThreshold: 3
+          readinessProbe:
+            exec:
+              command:
+                - /bin/bash
+                - -c
+                - pg_isready -U $POSTGRES_USER -d $POSTGRES_DB
+            initialDelaySeconds: 1
+            periodSeconds: 10
+            timeoutSeconds: 3
+            successThreshold: 1
+            failureThreshold: 3
+          volumeMounts:
+            - name: resource-db-pvc
+              mountPath: /var/lib/postgresql/data
+            - name: resource-db-init-vol
+              mountPath: /docker-entrypoint-initdb.d/init.sql
+              subPath: RESOURCE_DB_INIT
+      volumes:
+        - name: resource-db-init-vol
+          configMap:
+            name: resource-db-config
+  volumeClaimTemplates:
+    - metadata:
+        name: resource-db-pvc
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        resources:
+          requests:
+            storage: 1Gi

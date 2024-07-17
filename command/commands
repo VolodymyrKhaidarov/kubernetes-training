@@ -33,3 +33,20 @@ kubectl rollout history deployment.apps/song-app -n kt
 
 kubectl rollout undo deployment.apps/resource-app --to-revision=1 -n kt
 kubectl rollout undo deployment.apps/song-app --to-revision=1 -n kt
+
+#helm
+helm install ktchart ./ktchart
+helm uninstall ktchart
+
+#ingress namespace
+kubectl create namespace kt-ingress
+
+#ingress install
+helm install my-ingress ingress-nginx/ingress-nginx --namespace kt-ingress --set controller.replicaCount=2
+
+#check ingress controller
+kubectl get service --namespace kt-ingress my-ingress-ingress-nginx-controller
+
+#ingress status
+kubectl get ingress -A
+

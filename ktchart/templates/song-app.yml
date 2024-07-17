@@ -4,12 +4,11 @@ metadata:
   name: song-app
   namespace: {{ .Values.namespace }}
 spec:
-  type: NodePort
+  type: ClusterIP
   ports:
     - protocol: TCP
       port: 8082
       targetPort: 8080
-      nodePort: {{ .Values.nodePortSong }}
   selector:
     app: song-app
 
